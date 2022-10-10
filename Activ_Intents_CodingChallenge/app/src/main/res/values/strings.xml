@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Activ_Intents_CodingChallenge</string>
+    <string name="button_three">Button Three</string>
+    <string name="button_two">Button Two</string>
+    <string name="button_one">Button One</string>
+</resources>
