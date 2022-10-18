@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Activity lifecycle and state CodingChallenge</string>
+    <string name="add_item">Add Item</string>
+    <string name="arroz">Arroz</string>
+    <string name="feij_o">Feijão</string>
+    <string name="alface">Alface</string>
+    <string name="tomate">Tomate</string>
+    <string name="carne">Carne</string>
+    <string name="batata">Batata</string>
+    <string name="cenoura">Cenoura</string>
+    <string name="suco">Suco</string>
+    <string name="leo">Óleo</string>
+    <string name="macarr_o">Macarrão</string>
+    <string name="sal">Sal</string>
+</resources>

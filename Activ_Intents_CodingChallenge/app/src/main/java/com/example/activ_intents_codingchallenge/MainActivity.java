@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     public static final String EXTRA_MESSAGE = "com.example.activ_intents_codingchallenge.extra.MESSAGE";
-    public static final int TEXT_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +36,10 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityResultLauncher<Intent> launchSecondActivityResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == RESULT_OK){
-                        Intent data = result.getData();
-                        assert data != null;
-                    }
+            result -> {
+                if (result.getResultCode() == RESULT_OK){
+                    Intent data = result.getData();
+                    assert data != null;
                 }
             }
     );
@@ -65,13 +61,10 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityResultLauncher<Intent> launchSecondActivityResult2 = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == RESULT_OK){
-                        Intent data = result.getData();
-                        assert data != null;
-                    }
+            result -> {
+                if (result.getResultCode() == RESULT_OK){
+                    Intent data = result.getData();
+                    assert data != null;
                 }
             }
     );
