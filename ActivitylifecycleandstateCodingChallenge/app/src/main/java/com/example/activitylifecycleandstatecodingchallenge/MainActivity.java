@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -30,6 +31,14 @@ public class MainActivity extends AppCompatActivity {
         txtEight = findViewById(R.id.textView8);
         txtNine = findViewById(R.id.textView9);
         txtTen = findViewById(R.id.textView10);
+
+            if (savedInstanceState != null){
+                boolean isVisible =savedInstanceState.getBoolean("txtOneVisible");
+                    if (isVisible){
+                        txtone.setText(savedInstanceState.getString("itemName"));
+                    }
+            }
+
     }
 
     public void launchSecondActivity(View view) {
@@ -37,6 +46,16 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SecondActivity.class);
         launchSecondAct.launch(intent);
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (txtone.getVisibility() == View.VISIBLE){
+            outState.putBoolean("txtOneVisible", true);
+            outState.putString("itemName",txtone.getText().toString());
+
+        }
     }
 
     ActivityResultLauncher<Intent> launchSecondAct = registerForActivityResult(
