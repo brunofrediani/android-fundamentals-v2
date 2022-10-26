@@ -59,7 +59,10 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()){
 
             case R.id.action_order:
-                displayToast(getString(R.string.action_order_message));
+                Intent intent = new Intent(MainActivity.this,
+                        OrderActivity.class);
+                intent.putExtra(EXTRA_MESSAGE, mOrderMessage);
+                startActivity(intent);
                 return true;
             case R.id.action_status:
                 displayToast(getString(R.string.action_status_message));
