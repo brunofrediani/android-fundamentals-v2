@@ -1,10 +1,15 @@
 package com.example.roomwordsamplev2;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -36,12 +41,33 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, NewWordActivity.class);
-            startActivityForResult(intent, NEW_WORD_ACTIVITY_REQUEST_CODE);
+           // startActivityForResult(intent, NEW_WORD_ACTIVITY_REQUEST_CODE);
+            activityResultLauncher.launch(intent);
         });
 
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK){
+                        Intent data = result.getData();
+                        Word word = new Word(data.getStringExtra(NewWordActivity.EXTRA_REPLY));
+                        mWordViewModel.insert(word);
+
+                    } else {
+                        Toast.makeText(
+                                getApplicationContext(),
+                                R.string.empty_not_saved,
+                                Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+    );
+
+/*    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == NEW_WORD_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK){
             Word word = new Word(data.getStringExtra(NewWordActivity.EXTRA_REPLY));
@@ -52,5 +78,5 @@ public class MainActivity extends AppCompatActivity {
                     R.string.empty_not_saved,
                     Toast.LENGTH_LONG).show();
         }
-    }
+    }*/
 }
