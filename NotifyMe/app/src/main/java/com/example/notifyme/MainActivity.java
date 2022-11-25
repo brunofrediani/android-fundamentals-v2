@@ -6,7 +6,12 @@ import androidx.core.app.NotificationCompat;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,14 +22,28 @@ public class MainActivity extends AppCompatActivity {
 
     private Button button_notify;
     private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
+    private static final String ACTION_UPDATE_NOTIFICATION =
+            "com.example.notifyme.ACTION_UPDATE_NOTIFICATION";
     private NotificationManager mNotifyManager;
     private static final int NOTIFICATION_ID = 0;
+    private Button button_cancel;
+    private Button button_update;
 
+    private NotificationReceiver mReceiver = new NotificationReceiver();
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        registerReceiver(mReceiver,new IntentFilter(ACTION_UPDATE_NOTIFICATION));
+
         button_notify = findViewById(R.id.notify);
         button_notify.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,21 +52,65 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        button_update = findViewById(R.id.update);
+        button_update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateNotification();
+            }
+        });
 
+        button_cancel = findViewById(R.id.cancel);
+        button_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cancelNotification();
+            }
+        });
 
-    createNotificationChannel();
+        createNotificationChannel();
+        setNotificationButtonState(true, false, false);
     }
-    public void sendNotification(){
+
+    public void sendNotification() {
+        Intent updateIntent = new Intent(ACTION_UPDATE_NOTIFICATION);
+        PendingIntent updatePendingIntent = PendingIntent.getBroadcast
+                (this, NOTIFICATION_ID, updateIntent,PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
-        mNotifyManager.notify(NOTIFICATION_ID,notifyBuilder.build());
-
+        notifyBuilder.addAction(R.drawable.ic_update,"Update Notification",updatePendingIntent);
+        mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
+        setNotificationButtonState(false, true, true);
     }
-    public void createNotificationChannel(){
+
+    public void updateNotification() {
+        Bitmap androidImage = BitmapFactory.decodeResource(getResources(), R.drawable.mascot_1);
+        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        notifyBuilder.setStyle(new NotificationCompat.BigPictureStyle()
+                .bigPicture(androidImage)
+                .setBigContentTitle("Notification Updated!"));
+        notifyBuilder.build();
+        mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
+
+        setNotificationButtonState(false, false, true);
+    }
+
+    public void cancelNotification() {
+        mNotifyManager.cancel(NOTIFICATION_ID);
+        setNotificationButtonState(true, false, false);
+    }
+
+    void setNotificationButtonState(Boolean isNotifyEnabled, Boolean isUpdateEnabled, Boolean isCancelEnabled) {
+        button_notify.setEnabled(isNotifyEnabled);
+        button_update.setEnabled(isUpdateEnabled);
+        button_cancel.setEnabled(isCancelEnabled);
+    }
+
+    public void createNotificationChannel() {
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Create a NotificationChannel
             NotificationChannel notificationChannel = new NotificationChannel(PRIMARY_CHANNEL_ID,
-                    "Mascote Notification",NotificationManager.IMPORTANCE_HIGH);
+                    "Mascote Notification", NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
             notificationChannel.enableVibration(true);
@@ -56,7 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-    private NotificationCompat.Builder getNotificationBuilder(){
+
+    private NotificationCompat.Builder getNotificationBuilder() {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
                 NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_MUTABLE);
@@ -67,12 +131,26 @@ public class MainActivity extends AppCompatActivity {
                 .setSmallIcon(R.drawable.ic_android)
                 .setAutoCancel(true)
                 .setContentIntent(notificationPendingIntent)
-       /*Note: This task is required for devices running Android 7.1 or lower, which is most Android-powered devices.
-       For devices running Android 8.0 and higher, you use notification channels to add priority and defaults to notifications,
-       but it's a best practice to provide backward compatibility and support for lower-end devices.*/
+                /*Note: This task is required for devices running Android 7.1 or lower, which is most Android-powered devices.
+                For devices running Android 8.0 and higher, you use notification channels to add priority and defaults to notifications,
+                but it's a best practice to provide backward compatibility and support for lower-end devices.*/
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
         return notifyBuilder;
     }
 
+
+    public class NotificationReceiver extends BroadcastReceiver {
+
+        public NotificationReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Update the notification
+            updateNotification();
+
+        }
+    }
 }
+
